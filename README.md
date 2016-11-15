@@ -1,2 +1,3 @@
 # elbts
-A transformer to turnd elb logs into time series
+A transformer to turn elb logs into time series.
+
