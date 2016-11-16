@@ -1,5 +1,6 @@
 package de.zalando.elbts
 
+import de.zalando.elbts.messages.HttpRequest
 import org.scalatest.{FunSuite, WordSpec}
 
 /**
