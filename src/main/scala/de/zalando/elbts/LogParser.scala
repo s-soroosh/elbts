@@ -1,6 +1,7 @@
 package de.zalando.elbts
 
 import akka.actor.Actor
+import de.zalando.elbts.messages.LogItem
 
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
@@ -9,7 +10,8 @@ import akka.actor.Actor
 class LogParser extends Actor {
   override def receive: Receive = {
     case logString: String => {
-      println("logging " + logString)
+      val item = LogItem.fromELBString(logString)
+      println(item)
     }
     case msg => println("Unknown msg: " + msg)
   }
