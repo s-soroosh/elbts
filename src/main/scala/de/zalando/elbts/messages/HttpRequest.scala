@@ -12,7 +12,6 @@ object HttpRequest {
   private val pattern: Regex = "^([A-Z]*) (.*)://([^/]*)/(.*)\\?(.*) (.*)".r
 
   def fromElbString(elbHost: String): HttpRequest = {
-    val in: Iterator[Match] = pattern.findAllMatchIn(elbHost)
     val pattern(method, scheme, domain, path, queryParams, httpVersion) = elbHost
 
     HttpRequest(method, scheme, domain, path, queryParams, httpVersion)

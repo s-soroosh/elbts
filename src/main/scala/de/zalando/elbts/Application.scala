@@ -13,7 +13,7 @@ object Application extends App with RequestTimeout{
   val config = ConfigFactory.load()
 
   implicit val system = ActorSystem()
-  implicit val ec = system.dispatcher //bindAndHandle requires an implicit ExecutionContext
+  implicit val ec = system.dispatcher
   private val logParser:ActorRef = system.actorOf(Props[LogParser])
   private val sqsActor: ActorRef = system.actorOf(Props(new SQSReader(logParser)))
 
