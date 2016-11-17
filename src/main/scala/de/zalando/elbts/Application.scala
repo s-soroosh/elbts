@@ -3,6 +3,7 @@ package de.zalando.elbts
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
+import de.zalando.elbts.actors.{LogParser, SQSReader}
 import de.zalando.elbts.messages.Run
 
 /**
