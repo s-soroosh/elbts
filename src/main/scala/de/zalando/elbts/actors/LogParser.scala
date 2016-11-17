@@ -1,4 +1,4 @@
-package de.zalando.elbts
+package de.zalando.elbts.actors
 
 import akka.actor.Actor
 import de.zalando.elbts.messages.LogItem

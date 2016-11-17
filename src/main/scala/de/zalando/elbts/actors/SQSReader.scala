@@ -1,4 +1,4 @@
-package de.zalando.elbts
+package de.zalando.elbts.actors
 
 import java.io.{BufferedReader, InputStreamReader}
 

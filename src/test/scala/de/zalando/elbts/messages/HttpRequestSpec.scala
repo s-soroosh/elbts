@@ -1,7 +1,6 @@
-package de.zalando.elbts
+package de.zalando.elbts.messages
 
-import de.zalando.elbts.messages.HttpRequest
-import org.scalatest.{FunSuite, WordSpec}
+import org.scalatest.WordSpec
 
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>

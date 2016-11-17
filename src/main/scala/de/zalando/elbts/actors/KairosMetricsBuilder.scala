@@ -1,6 +1,6 @@
-package de.zalando.elbts
+package de.zalando.elbts.actors
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef}
 import de.zalando.elbts.messages.LogItem
 import org.kairosdb.client.builder.MetricBuilder
 
@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
-class KairosMetricsBuilder extends Actor {
+class KairosMetricsBuilder(target: ActorRef) extends Actor {
   override def receive: Receive = {
     case logItem: LogItem => {
 
@@ -19,6 +19,8 @@ class KairosMetricsBuilder extends Actor {
       builder.addMetric("backend_response_time").addDataPoint(logItem.issueDate.getMillis).addTags(tags)
       builder.addMetric("backend_status_code").addDataPoint(logItem.backendStatusCode).addTags(tags)
       builder.addMetric("elb_status_code").addDataPoint(logItem.backendStatusCode).addTags(tags)
+
+      target ! builder
 
     }
   }
