@@ -62,9 +62,8 @@ case class TagConfiguration(urlConfigs: URLConfig*) {
 }
 
 object TagConfiguration {
-  val config: Config = ConfigFactory.load()
 
-  def fromConfig(configName: String) = {
+  def fromConfig(configName: String)(implicit config:Config) = {
     val tagConfig: Config = config.getConfig(configName)
     val expresssionConfigList = tagConfig.getConfigList("expressions").asScala
     val urlConfigs = expresssionConfigList.map(config => {
