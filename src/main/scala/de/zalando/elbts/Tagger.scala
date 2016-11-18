@@ -1,23 +1,23 @@
 package de.zalando.elbts
 
-import java.util
-import java.util.Map
 import java.util.regex.{Matcher, Pattern}
 
 import com.typesafe.config.{Config, ConfigFactory}
 import de.zalando.elbts.messages.LogItem
 
-import scala.util.matching.Regex
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
 class Tagger(tagConfiguration: TagConfiguration) {
-  def tag(logItem: LogItem): Map[String, String] =
-    //todo: this part should be implmeneted
-    tagConfiguration.findTags(logItem).getOrElse(new util.HashMap())
+  def tag(logItem: LogItem): Map[String, String] = {
+
+    val result: Map[String, String] = tagConfiguration.findTags(logItem).getOrElse(Map("known" -> "false"))
+    result
+  }
 }
 
 case class URLConfig(url: String, groupNames: Seq[String]) {
@@ -25,7 +25,7 @@ case class URLConfig(url: String, groupNames: Seq[String]) {
 
   def tagIfMatch(url: String): Option[Map[String, String]] = {
     regex.findFirstMatchIn(url).map(m => {
-      (("url" -> url) +: groupNames.map(gName => gName -> m.group(gName))).toMap.asJava
+      (("url" -> url) +: groupNames.map(gName => gName -> m.group(gName))).toMap
     })
   }
 }
