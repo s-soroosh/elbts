@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorRef}
 import awscala._
 import awscala.s3.{S3, S3Object}
 import awscala.sqs._
+import de.zalando.elbts.Logging
 import de.zalando.elbts.messages.{LogFileDescriptor, Run}
 import play.api.libs.json.{JsArray, JsValue, Json}
 import scaldi.Injector
@@ -16,7 +17,7 @@ import scaldi.akka.AkkaInjectable
   */
 
 
-class SQSReader(implicit injector: Injector) extends Actor with QueueReader with AkkaInjectable {
+class SQSReader(implicit injector: Injector) extends Actor with QueueReader with AkkaInjectable with Logging {
 
   val target: ActorRef = injectActorRef[LoadBalancerLogParser]
 
@@ -56,7 +57,7 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
         val reader: BufferedReader = new BufferedReader(new InputStreamReader(s3obj.content))
         var line1: String = reader.readLine()
 
-        while  (line1 != null){
+        while (line1 != null) {
           target ! line1
           line1 = reader.readLine()
         }

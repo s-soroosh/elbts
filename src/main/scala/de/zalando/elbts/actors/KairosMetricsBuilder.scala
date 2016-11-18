@@ -1,7 +1,7 @@
 package de.zalando.elbts.actors
 
 import akka.actor.{Actor, ActorRef, Props}
-import de.zalando.elbts.Tagger
+import de.zalando.elbts.{Logging, Tagger}
 import de.zalando.elbts.messages.LogItem
 import org.kairosdb.client.builder.MetricBuilder
 import scaldi.Injector
@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
-class KairosMetricsBuilder(implicit injector: Injector) extends Actor with MetricsBuilder with AkkaInjectable {
+class KairosMetricsBuilder(implicit injector: Injector) extends Actor with MetricsBuilder with AkkaInjectable with Logging {
 
   val target: ActorRef = injectActorRef[MetricsPersister]
   val tagger: Tagger = inject[Tagger]
