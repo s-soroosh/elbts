@@ -1,16 +1,17 @@
 package de.zalando.elbts.actors
 
 import akka.actor.Actor
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.Config
 import de.zalando.elbts.Logging
 import org.kairosdb.client.HttpClient
 import org.kairosdb.client.builder.MetricBuilder
+import scaldi.Injector
 import scaldi.akka.AkkaInjectable
 
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
-class KairosMetricsPersister extends Actor with AkkaInjectable with MetricsPersister with Logging {
+class KairosMetricsPersister(implicit injector:Injector) extends Actor with AkkaInjectable with MetricsPersister with Logging {
 
   private val kairosConfiguration: KairosConfiguration = inject[KairosConfiguration]
   private val client = new HttpClient(kairosConfiguration.url)

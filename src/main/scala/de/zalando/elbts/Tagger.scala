@@ -78,30 +78,30 @@ object TagConfiguration {
 }
 
 
-object A extends App {
-  private val pattern: Pattern = Pattern.compile("(?<method>\\w+) (?<number>\\w+)")
-  private val r: Regex = "(?<method>\\w+) (?<number>\\w+)".r("method", "number")
-
-  private val value: Match = r.findFirstMatchIn("GET 101").get
-  println(value.groupCount)
-  println(value.group("method"))
-  println(value.groupNames)
-  private val matcher: Matcher = pattern.matcher("GET 101")
-  val found = matcher.find()
-  println(found)
-  println(matcher.group("method"))
-  println(matcher.group("number"))
-
-  val urlConfig1 = URLConfig("""steering-points/(?<spid>.*)/assignments""", Seq("spid"))
-//  val urlConfig2 = URLConfig("""/steerings/(?<sid>\.*/.*""", Seq("sid"))
-
-//  val tagConfiguration = TagConfiguration(urlConfig1)
-
-
-  private val ifMatch: Option[Map[String, String]] = urlConfig1.tagIfMatch("steering-points/21ef1e58-63e6-46a5-8ddb-ddca0036fcb3/assignments")
-  println(ifMatch)
-
-
-  //  val conf = TagConfiguration(r)
-
-}
+//object A extends App {
+//  private val pattern: Pattern = Pattern.compile("(?<method>\\w+) (?<number>\\w+)")
+//  private val r: Regex = "(?<method>\\w+) (?<number>\\w+)".r("method", "number")
+//
+//  private val value: Match = r.findFirstMatchIn("GET 101").get
+//  println(value.groupCount)
+//  println(value.group("method"))
+//  println(value.groupNames)
+//  private val matcher: Matcher = pattern.matcher("GET 101")
+//  val found = matcher.find()
+//  println(found)
+//  println(matcher.group("method"))
+//  println(matcher.group("number"))
+//
+//  val urlConfig1 = URLConfig("""steering-points/(?<spid>.*)/assignments""", Seq("spid"))
+////  val urlConfig2 = URLConfig("""/steerings/(?<sid>\.*/.*""", Seq("sid"))
+//
+////  val tagConfiguration = TagConfiguration(urlConfig1)
+//
+//
+//  private val ifMatch: Option[Map[String, String]] = urlConfig1.tagIfMatch("steering-points/21ef1e58-63e6-46a5-8ddb-ddca0036fcb3/assignments")
+//  println(ifMatch)
+//
+//
+//  //  val conf = TagConfiguration(r)
+//
+//}
