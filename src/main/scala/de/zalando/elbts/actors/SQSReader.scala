@@ -8,13 +8,17 @@ import awscala.s3.{S3, S3Object}
 import awscala.sqs._
 import de.zalando.elbts.messages.{LogFileDescriptor, Run}
 import play.api.libs.json.{JsArray, JsValue, Json}
+import scaldi.Injector
+import scaldi.akka.AkkaInjectable
 
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
 
 
-class SQSReader(target: ActorRef) extends Actor {
+class SQSReader(implicit injector: Injector) extends Actor with QueueReader with AkkaInjectable {
+
+  val target: ActorRef = injectActorRef[LoadBalancerLogParser]
 
   implicit val sqs = SQS.at(Region.EU_CENTRAL_1)
   implicit val s3 = S3.at(Region.EU_CENTRAL_1)

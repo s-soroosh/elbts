@@ -17,6 +17,7 @@ libraryDependencies ++= {
     "com.github.seratch" %% "awscala" % "0.5.+",
     "com.typesafe.play" %% "play-json" % playVersion,
     "org.kairosdb" % "client" % "2.1.1",
+    "org.scaldi" %% "scaldi-akka" % "0.5.8",
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test",
     "org.scalatest" %% "scalatest" % "2.2.0" % "test"
 

@@ -3,26 +3,30 @@ package de.zalando.elbts
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.util.Timeout
 import com.typesafe.config.{Config, ConfigFactory}
-import de.zalando.elbts.actors.{KairosMetricsBuilder, KairosMetricsPersister, LogParser, SQSReader}
+import de.zalando.elbts.actors._
 import de.zalando.elbts.messages.Run
+import scaldi.Module
+import scaldi.akka.AkkaInjectable
 
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
-object Application extends App with RequestTimeout {
+object Application extends App with RequestTimeout with AkkaInjectable {
 
   val config = ConfigFactory.load()
 
-  implicit val system = ActorSystem()
-  implicit val ec = system.dispatcher
-  private val tagger = new Tagger(TagConfiguration.fromConfig("tag-conf"))
+  implicit val module = new ActorModule :: new AkkaModule
 
-  private val sqsActor: ActorRef = system.actorOf(Props(new SQSReader(logParser)))
-  private val kairosMetricsPersister: ActorRef = system.actorOf(Props(new KairosMetricsPersister))
-  private val kairosMetricsBuilder: ActorRef = system.actorOf(Props(new KairosMetricsBuilder(kairosMetricsPersister, tagger)))
-  private val logParser: ActorRef = system.actorOf(Props(new LogParser(kairosMetricsBuilder)))
+  implicit val system = inject[ActorSystem]
 
-  sqsActor ! Run()
+  val queueActor = injectActorRef[QueueReader]
+
+  //  private val sqsActor: ActorRef = system.actorOf(Props(new SQSReader(logParser)))
+  //  private val kairosMetricsPersister: ActorRef = system.actorOf(Props(new KairosMetricsPersister))
+  //  private val kairosMetricsBuilder: ActorRef = system.actorOf(Props(new KairosMetricsBuilder(kairosMetricsPersister, tagger)))
+  //  private val logParser: ActorRef = system.actorOf(Props(new ELBLogParser(kairosMetricsBuilder)))
+
+  queueActor ! Run()
 
   Thread.sleep(20000)
 }
@@ -36,4 +40,8 @@ trait RequestTimeout {
     val d = Duration(t)
     FiniteDuration(d.length, d.unit)
   }
+}
+
+class AkkaModule extends Module {
+  bind[ActorSystem] to ActorSystem("ELBTS") destroyWith (_.terminate())
 }
