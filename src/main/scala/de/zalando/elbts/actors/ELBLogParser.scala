@@ -17,7 +17,6 @@ class ELBLogParser(implicit injector: Injector) extends Actor with LoadBalancerL
     case logString: String => {
       val item = LogItem.fromELBString(logString)
       target ! item
-      println(item)
     }
     case msg => println("Unknown msg: " + msg)
   }

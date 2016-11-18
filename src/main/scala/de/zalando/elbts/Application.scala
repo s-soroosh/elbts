@@ -16,19 +16,13 @@ object Application extends App with RequestTimeout with AkkaInjectable {
   val config = ConfigFactory.load()
 
   implicit val module = new ActorModule :: new AkkaModule
-
   implicit val system = inject[ActorSystem]
-
   val queueActor = injectActorRef[QueueReader]
 
-  //  private val sqsActor: ActorRef = system.actorOf(Props(new SQSReader(logParser)))
-  //  private val kairosMetricsPersister: ActorRef = system.actorOf(Props(new KairosMetricsPersister))
-  //  private val kairosMetricsBuilder: ActorRef = system.actorOf(Props(new KairosMetricsBuilder(kairosMetricsPersister, tagger)))
-  //  private val logParser: ActorRef = system.actorOf(Props(new ELBLogParser(kairosMetricsBuilder)))
 
   queueActor ! Run()
 
-  Thread.sleep(20000)
+//  Thread.sleep(20000)
 }
 
 trait RequestTimeout {

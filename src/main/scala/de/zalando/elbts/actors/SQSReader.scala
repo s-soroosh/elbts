@@ -35,8 +35,7 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
       val s3Info = (body \ "Records").validate[JsArray].get.value.head \ "s3"
       val bucketName: String = (s3Info \ "bucket" \ "name").validate[String].getOrElse(throw new Exception("bucker-name field does not exist"))
       val objectKey: String = (s3Info \ "object" \ "key").validate[String].getOrElse(throw new Exception("object key does not exist"))
-      println(bucketName)
-      println(objectKey)
+      sqs.deleteMessage(m)
       LogFileDescriptor(bucketName, objectKey)
     })
 
@@ -55,7 +54,13 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
 
       message.flatMap(readS3File).flatMap(s3obj => {
         val reader: BufferedReader = new BufferedReader(new InputStreamReader(s3obj.content))
-        Stream.continually(reader.readLine()).takeWhile(_ != null).foreach(line => target ! line)
+        var line1: String = reader.readLine()
+
+        while  (line1 != null){
+          target ! line1
+          line1 = reader.readLine()
+        }
+
         None
       })
       self ! Run()

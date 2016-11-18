@@ -4,6 +4,7 @@ import java.util.regex.{Matcher, Pattern}
 
 import com.typesafe.config.{Config, ConfigFactory}
 import de.zalando.elbts.messages.LogItem
+import org.slf4j.LoggerFactory
 
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
@@ -12,13 +13,36 @@ import scala.util.matching.Regex.Match
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
+
+
+
 class Tagger(tagConfiguration: TagConfiguration) {
+
+  import Tagger._
+
   def tag(logItem: LogItem): Map[String, String] = {
 
-    val result: Map[String, String] = tagConfiguration.findTags(logItem).getOrElse(Map("known" -> "false"))
+    val result: Map[String, String] = defaultTags(logItem) ++ tagConfiguration.findTags(logItem).getOrElse(tagUnknown(logItem))
     result
   }
+
+  private def defaultTags(logItem: LogItem): Map[String,String] = {
+    Map("load-balancer" -> logItem.elb,
+        "elb-status-code" -> logItem.elbStatusCode.toString,
+        "backend-status-code" -> logItem.backendStatusCode.toString
+    )
+  }
+
+  private def tagUnknown(logItem: LogItem): Map[String, String] = {
+    logger.warn(s"LogItem $logItem  is unknown.")
+    Map("known" -> "false")
+  }
 }
+
+object Tagger {
+  private val logger = LoggerFactory.getLogger(classOf[Tagger])
+}
+
 
 case class URLConfig(url: String, groupNames: Seq[String]) {
   private val regex = url.r(groupNames: _*)
@@ -69,13 +93,15 @@ object A extends App {
   println(matcher.group("method"))
   println(matcher.group("number"))
 
-  val urlConfig1 = URLConfig("""/steering-points/(?<spid>\.*)/assignments)""", Seq("spid"))
-  val urlConfig2 = URLConfig("""/steerings/(?<sid>\.*/.*""", Seq("sid"))
+  val urlConfig1 = URLConfig("""steering-points/(?<spid>.*)/assignments""", Seq("spid"))
+//  val urlConfig2 = URLConfig("""/steerings/(?<sid>\.*/.*""", Seq("sid"))
 
-  val tagConfiguration = TagConfiguration(urlConfig1, urlConfig2)
-  val sample = "/steering-points/123/assignments"
+//  val tagConfiguration = TagConfiguration(urlConfig1)
 
-  //  private val in: Iterator[Match] = r.findAllMatchIn("GET 101")
+
+  private val ifMatch: Option[Map[String, String]] = urlConfig1.tagIfMatch("steering-points/21ef1e58-63e6-46a5-8ddb-ddca0036fcb3/assignments")
+  println(ifMatch)
+
 
   //  val conf = TagConfiguration(r)
 
