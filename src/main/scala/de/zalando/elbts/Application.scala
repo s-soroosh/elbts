@@ -22,7 +22,6 @@ object Application extends App with RequestTimeout with AkkaInjectable {
 
   queueActor ! Run()
 
-//  Thread.sleep(20000)
 }
 
 trait RequestTimeout {

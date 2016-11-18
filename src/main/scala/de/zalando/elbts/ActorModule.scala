@@ -13,4 +13,6 @@ class ActorModule extends Module {
   bind [MetricsPersister] toProvider new KairosMetricsPersister
   bind [QueueReader] toProvider new SQSReader
   bind [Tagger] toProvider new Tagger(TagConfiguration.fromConfig("tag-conf"))
+  bind [SQSConfiguration] toProvider SQSConfiguration.fromConfig("sqs-conf")
+  bind [S3Configuration] toProvider S3Configuration.fromConfig("s3-conf")
 }
