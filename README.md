@@ -1,3 +1,6 @@
+[![MIT licensed](https://img.shields.io/badge/license-MIT-green.svg)](https://raw.githubusercontent.com/zalando-incubator/elbts/master/LICENSE)
+
+
 # elbts
 
 ** WORK IN PROGRESS **
