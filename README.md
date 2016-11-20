@@ -11,9 +11,9 @@ A transformer to turn AWS load balancer logs into time series data. Main intent 
 Features
 --------
  - [x] AWS Classic load balancer log file parser
- - [] AWS Application load balancer log file parser
+ - [ ] AWS Application load balancer log file parser
  - [x] KairosDB Mrtics generator and persister
- - [] InfluxDB Metrics generator and persister
+ - [ ] InfluxDB Metrics generator and persister
  - [x] Tagging merics by endpoint paths and resource names
- - [] Integration with swagger files to tag the metrics automatically
+ - [ ] Integration with swagger files to tag the metrics automatically
  
