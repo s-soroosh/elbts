@@ -1,0 +1,164 @@
+
+SenzaInfo:
+  StackName: "elbts"
+  Parameters:
+    - ImageVersion:
+        Description: "Docker image version of ELBTS"
+    -  ASGMinSize:
+        Description: "Minimum size of instances in Service Auto Scaling Group"
+        Default: "1"
+    -  ASGMaxSize:
+        Description: "Maximmum size of instances in Service Auto Scaling Group"
+        Default: "1"
+
+    -  ApplicationId:
+        Description: "Application id from yourturn"
+        Default: "octopus-elbts"
+
+    -  InstanceType:
+        Description: "AWS instance type"
+        Default: "m4.large"
+
+    - JVMConfiguration:
+        Description: "JVM confs"
+        Default: "-J-Xms2048M -J-Xmx6144m"
+
+    - ScalyrAccountKey:
+        Description: "Scalyr account key"
+        Default: ""
+
+
+# a list of senza components to apply to the definition
+SenzaComponents:
+
+  # this basic configuration is required for the other components
+  - Configuration:
+      Type: Senza::StupsAutoConfiguration # auto-detect network setup
+
+  # will create a launch configuration and auto scaling group with scaling triggers
+  - AppServer:
+      Type: Senza::TaupageAutoScalingGroup
+      HealthCheckType: ELB
+      InstanceType: "{{Arguments.InstanceType}}"
+      SecurityGroups:
+        - Fn::GetAtt:
+          - ServiceSg
+          - GroupId
+      IamRoles:
+        - Ref: ServiceRole
+      AutoScaling:
+        Minimum: "{{Arguments.ASGMinSize}}"
+        Maximum: "{{Arguments.ASGMaxSize}}"
+        DesiredCapacity: "{{Arguments.ASGMinSize}}"
+        MetricType: CPU
+      ElasticLoadBalancer: AppLoadBalancer
+      AssociatePublicIpAddress: false # change for standalone deployment in default VPC
+      TaupageConfig:
+        appdynamics_application: "A B Testing and Personalization"
+        application_id: "octopus-elbts"
+        application_version: "{{Arguments.ImageVersion}}"
+        runtime: Docker
+        source: "pierone.stups.zalan.do/octopus/elbts:{{Arguments.ImageVersion}}"
+        ports:
+          9000: 9000
+          8776: 8776 # jolokia
+
+        #configure logrotate for application.log
+        application_logrotate_size: 100M
+        application_logrotate_interval: hourly
+        application_logrotate_rotate: 0
+
+        mint_bucket: "zalando-stups-mint-268094141749-eu-west-1"
+        scalyr_account_key: {{Arguments.ScalyrAccountKey}}
+        root: true
+
+        environment:
+          kairos_url: "http://kairosaws.octopus.zalan.do"
+          jvm_conf : "{{Arguments.JVMConfiguration}}"
+
+  # creates an ELB entry and Route53 domains to this ELB
+  - AppLoadBalancer:
+      Type: Senza::WeightedDnsElasticLoadBalancer
+      HTTPPort: 9000
+      MainDomain: "elbts.octopus.zalan.do"
+      Scheme: internet-facing
+      HealthCheckPath: /healthcheck
+      SecurityGroups:
+        - Fn::GetAtt:
+          - ServiceLBSg
+          - GroupId
+
+
+Resources:
+
+  # Automatically create security groups.
+  ServiceSg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: required ports
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 9000
+        ToPort: 9000
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp # jolokia
+        FromPort: 8776
+        ToPort: 8776
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp  # prometheus (memory and other metrics for zmon)
+        FromPort: 9100
+        ToPort: 9100
+        CidrIp: 0.0.0.0/0
+
+
+  ServiceLBSg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: load balancer ports
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+
+
+  ServiceRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Policies:
+        - PolicyName: ServiceMintRead
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Effect: Allow
+              Action: "s3:GetObject"
+              Resource: ["arn:aws:s3:::zalando-stups-mint-268094141749-eu-west-1/{{Arguments.ApplicationId}}/*"]
+
+        - PolicyName: ServiceElbLogsRead
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+            - Effect: Allow
+              Action: "s3:GetObject"
+              Resource: ["arn:aws:s3:::zalando-stups-mint-268094141749-eu-west-1/octopus-elblogs/*"]
+
+        - PolicyName: ServiceSQSRead
+          PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: Allow
+            Action: ["sqs:sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:SendMessage"]
+            Resource: ["arn:aws:sqs:*:268094141749:elb-queue"]
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+        Path: /
+
