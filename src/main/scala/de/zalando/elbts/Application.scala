@@ -17,7 +17,7 @@ object Application extends App with RequestTimeout with AkkaInjectable {
 
   implicit val module = new ActorModule :: new AkkaModule
   implicit val system = inject[ActorSystem]
-  val queueActor = injectActorRef[QueueReader]
+  val queueActor = injectActorRef[QueueReader]("queue-reader")
 
 
   queueActor ! Run()

@@ -1,26 +1,31 @@
 package de.zalando.elbts.actors
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorLogging}
 import com.typesafe.config.Config
-import de.zalando.elbts.Logging
 import org.kairosdb.client.HttpClient
 import org.kairosdb.client.builder.MetricBuilder
 import scaldi.Injector
 import scaldi.akka.AkkaInjectable
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
-class KairosMetricsPersister(implicit injector:Injector) extends Actor with AkkaInjectable with MetricsPersister with Logging {
+class KairosMetricsPersister(implicit injector: Injector) extends Actor with AkkaInjectable with MetricsPersister with ActorLogging {
 
   private val kairosConfiguration: KairosConfiguration = inject[KairosConfiguration]
   private val client = new HttpClient(kairosConfiguration.url)
+  println("new KairosMetricsPersister")
 
   override def receive: Receive = {
     case metricBuilder: MetricBuilder => {
-      client.pushMetrics(metricBuilder)
+      Future {
+        client.pushMetrics(metricBuilder)
+      }
     }
-    case msg => logger.info(s"Unknown msg: $msg")
+    case msg => log.warning(s"Unknown msg: $msg")
   }
 }
 

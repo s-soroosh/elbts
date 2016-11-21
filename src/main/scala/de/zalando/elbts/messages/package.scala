@@ -8,6 +8,8 @@ package object messages {
 
   case class Run()
 
+  case class Flush()
+
   case class LogFileDescriptor(bucketName: String, objectKey: String)
 
 }

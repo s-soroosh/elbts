@@ -2,12 +2,12 @@ package de.zalando.elbts.actors
 
 import java.io.{BufferedReader, InputStreamReader}
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.routing.BalancingPool
 import awscala._
 import awscala.s3.{S3, S3Object}
 import awscala.sqs._
-import com.typesafe.config.ConfigFactory
-import de.zalando.elbts.Logging
+import com.typesafe.config.Config
 import de.zalando.elbts.messages.{LogFileDescriptor, Run}
 import play.api.libs.json.{JsArray, JsValue, Json}
 import scaldi.Injector
@@ -16,11 +16,13 @@ import scaldi.akka.AkkaInjectable
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
-class SQSReader(implicit injector: Injector) extends Actor with QueueReader with AkkaInjectable with Logging {
+class SQSReader(implicit injector: Injector) extends Actor with QueueReader with AkkaInjectable with ActorLogging {
 
-  val target: ActorRef = injectActorRef[LoadBalancerLogParser]
+  val target: ActorRef = context.actorOf(Props(new ELBLogParser).withRouter(BalancingPool(15)), "elb-log-parser")
   val sqsConfig: SQSConfiguration = inject[SQSConfiguration]
   val s3Config: S3Configuration = inject[S3Configuration]
+
+  log.info("A new SQSReader has been created")
 
   implicit val sqs = SQS.at(sqsConfig.region)
   implicit val s3 = S3.at(s3Config.region)
@@ -28,7 +30,6 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
 
 
   private def receiveMessage: Option[LogFileDescriptor] = {
-
     val messages: Seq[Message] = sqs.receiveMessage(queue, 1, 20)
 
     messages.headOption.map(m => {
@@ -53,16 +54,17 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
   override def receive: Receive = {
     case Run() => {
       val message: Option[LogFileDescriptor] = receiveMessage
-
-      message.flatMap(readS3File).flatMap(s3obj => {
+      message.flatMap(readS3File).map(s3obj => {
         val reader: BufferedReader = new BufferedReader(new InputStreamReader(s3obj.content))
-        var line1: String = reader.readLine()
+        var line: String = reader.readLine()
 
-        while (line1 != null) {
-          target ! line1
-          line1 = reader.readLine()
+        while (line != null) {
+          target ! line
+          line = reader.readLine()
         }
-
+        reader.close()
+        s3obj.content.close()
+        s3obj.close()
         None
       })
       self ! Run()
@@ -76,9 +78,8 @@ case class SQSConfiguration(region: Region, queueName: String)
 case class S3Configuration(region: Region)
 
 object SQSConfiguration {
-  private val config = ConfigFactory.load()
 
-  def fromConfig(confgiName: String): SQSConfiguration = {
+  def fromConfig(confgiName: String)(implicit config: Config): SQSConfiguration = {
     val sqsConfig = config.getConfig(confgiName)
     val regionName = sqsConfig.getString("region")
     val qName = sqsConfig.getString("queue-name")
@@ -89,9 +90,8 @@ object SQSConfiguration {
 }
 
 object S3Configuration {
-  private val config = ConfigFactory.load()
 
-  def fromConfig(configName: String): S3Configuration = {
+  def fromConfig(configName: String)(implicit config: Config): S3Configuration = {
     val s3Config = config.getConfig(configName)
     val regionName = s3Config.getString("region")
     val region = Region(regionName)
