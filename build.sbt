@@ -7,7 +7,6 @@ organization := "zalando"
 scalaVersion := "2.11.8"
 
 
-
 packageName in Docker := packageName.value
 version in Docker := version.value
 mappings in Docker += file("scm-source.json") -> "scm-source.json"
