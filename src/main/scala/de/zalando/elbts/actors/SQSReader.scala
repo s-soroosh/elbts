@@ -5,7 +5,7 @@ import java.io.{BufferedReader, InputStreamReader}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.routing.BalancingPool
 import awscala._
-import awscala.s3.{S3, S3Object}
+import awscala.s3.{Bucket, S3, S3Object}
 import awscala.sqs._
 import com.typesafe.config.Config
 import de.zalando.elbts.messages.{LogFileDescriptor, Run}
@@ -28,7 +28,6 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
   log.info("A new SQSReader has been created")
 
 
-
   private def receiveMessage: Option[LogFileDescriptor] = {
     val messages: Seq[Message] = sqs.receiveMessage(queue, 1, 20)
 
@@ -45,7 +44,7 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
   }
 
   private def readS3File(logFileDescriptor: LogFileDescriptor): Option[S3Object] = {
-    val s3Object: Option[S3Object] = s3.bucket(logFileDescriptor.bucketName).flatMap(_.get(logFileDescriptor.objectKey))
+    val s3Object = s3.get(Bucket(logFileDescriptor.bucketName), logFileDescriptor.objectKey)
 
     s3Object
   }
