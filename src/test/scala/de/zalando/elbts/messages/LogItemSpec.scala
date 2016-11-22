@@ -17,6 +17,4 @@ class LogItemSpec extends WordSpec {
       assert(logItem == result)
     }
   }
-
-
 }
