@@ -21,10 +21,10 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
   val target: ActorRef = context.actorOf(Props(new ELBLogParser).withRouter(BalancingPool(15)), "elb-log-parser")
   val sqsConfig: SQSConfiguration = inject[SQSConfiguration]
   val s3Config: S3Configuration = inject[S3Configuration]
-  val queue = sqs.queue(sqsConfig.queueName).getOrElse(throw new Exception("elb-queue does not exist."))
   implicit val sqs = SQS.at(sqsConfig.region)
   implicit val s3 = S3.at(s3Config.region)
 
+  val queue = sqs.queue(sqsConfig.queueName).getOrElse(throw new Exception("elb-queue does not exist."))
   log.info("A new SQSReader has been created")
 
 
