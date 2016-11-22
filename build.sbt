@@ -18,6 +18,7 @@ lazy val root = (project in file("."))
   .enablePlugins(JavaAppPackaging)
     .enablePlugins(BuildInfoPlugin)
   .settings(
+    name := "elbts",
     packageName in Docker := packageName.value,
     version in Docker := version.value,
     mappings in Docker += file("scm-source.json") -> "scm-source.json",
