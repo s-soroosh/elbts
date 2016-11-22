@@ -144,7 +144,7 @@ Resources:
             Statement:
             - Effect: Allow
               Action: "s3:GetObject"
-              Resource: ["arn:aws:s3:::zalando-stups-mint-268094141749-eu-west-1/octopus-elblogs/*"]
+              Resource: ["arn:aws:s3:::octopus-elblogs/*"]
 
         - PolicyName: ServiceSQSRead
           PolicyDocument:
