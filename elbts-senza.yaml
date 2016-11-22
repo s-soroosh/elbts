@@ -148,11 +148,11 @@ Resources:
 
         - PolicyName: ServiceSQSRead
           PolicyDocument:
-          Version: "2012-10-17"
-          Statement:
-          - Effect: Allow
-            Action: ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:SendMessage"]
-            Resource: ["arn:aws:sqs:*:268094141749:elb-queue"]
+            Version: "2012-10-17"
+            Statement:
+            - Effect: Allow
+              Action: ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:SendMessage"]
+              Resource: ["arn:aws:sqs:*:268094141749:elb-queue"]
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
