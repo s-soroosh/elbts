@@ -69,7 +69,7 @@ SenzaComponents:
         application_logrotate_rotate: 0
 
         mint_bucket: "zalando-stups-mint-268094141749-eu-west-1"
-        scalyr_account_key: {{Arguments.ScalyrAccountKey}}
+        scalyr_account_key: "{{Arguments.ScalyrAccountKey}}"
         root: true
 
         environment:
