@@ -151,8 +151,8 @@ Resources:
             Version: "2012-10-17"
             Statement:
             - Effect: Allow
-              Action: ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:SendMessage"]
-              Resource: ["*"]
+              Action: "sqs:*"
+              Resource: ["arn:aws:sqs:eu-central-1:268094141749:*"]
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
