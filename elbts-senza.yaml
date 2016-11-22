@@ -152,7 +152,7 @@ Resources:
             Statement:
             - Effect: Allow
               Action: ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:SendMessage"]
-              Resource: ["arn:aws:sqs:*:268094141749:elb-queue"]
+              Resource: ["*"]
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
