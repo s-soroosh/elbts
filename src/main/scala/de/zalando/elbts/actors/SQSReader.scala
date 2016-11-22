@@ -36,7 +36,7 @@ class SQSReader(implicit injector: Injector) extends Actor with QueueReader with
       val body: JsValue = Json.parse(m.body)
       println("body: " + body)
       val s3Info = (body \ "Records").validate[JsArray].get.value.head \ "s3"
-      val bucketName: String = (s3Info \ "bucket" \ "name").validate[String].getOrElse(throw new Exception("bucker-name field does not exist"))
+      val bucketName: String = (s3Info \ "bucket" \ "name").validate[String].getOrElse(throw new Exception("bucket name field does not exist"))
       val objectKey: String = (s3Info \ "object" \ "key").validate[String].getOrElse(throw new Exception("object key does not exist"))
       sqs.deleteMessage(m)
       LogFileDescriptor(bucketName, objectKey)
