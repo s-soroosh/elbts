@@ -8,7 +8,6 @@ import scala.concurrent.Future
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
-
 trait RestAPI {
   def healthcheck(): Future[String] = Future.successful("ELBTS is alive")
 }
@@ -16,7 +15,6 @@ trait RestAPI {
 class RestRoutes extends RestAPI {
 
   import StatusCodes._
-
 
   val healthcheckRoute = pathPrefix("healthcheck") {
     pathEndOrSingleSlash {
