@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
     version in Docker := version.value,
     mappings in Docker += file("scm-source.json") -> "scm-source.json",
     dockerRepository := Some("pierone.stups.zalan.do/octopus"),
-    mappings in Universal += file("jolokia/jolokia-jvm-1.3.2-agent.jar") -> "jolokia/tesjolokia-jvm-1.3.2-agent.jar",
+    mappings in Universal += file("jolokia/jolokia-jvm-1.3.2-agent.jar") -> "jolokia/jolokia-jvm-1.3.2-agent.jar",
     dockerCommands := Seq(
       Cmd("FROM", "registry.opensource.zalan.do/stups/openjdk:8u91-b14-1-22"),
       Cmd("RUN", "apt-get update && apt-get install -y software-properties-common"),
