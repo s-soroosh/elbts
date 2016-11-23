@@ -1,9 +1,12 @@
 package de.zalando.elbts.actors
 
+import java.util
+
 import akka.actor.{Actor, ActorLogging}
 import com.typesafe.config.Config
 import org.kairosdb.client.HttpClient
 import org.kairosdb.client.builder.MetricBuilder
+import org.kairosdb.client.response.Response
 import scaldi.Injector
 import scaldi.akka.AkkaInjectable
 
@@ -21,8 +24,15 @@ class KairosMetricsPersister(implicit injector: Injector) extends Actor with Akk
 
   override def receive: Receive = {
     case metricBuilder: MetricBuilder => {
-      Future {
+      val pushFuture: Future[Response] = Future {
         client.pushMetrics(metricBuilder)
+      }
+      pushFuture.onFailure { case t: Throwable =>
+        log.error(t, "Error in persisting metrics into kairosdb.")
+      }
+      pushFuture.onSuccess { case response: Response =>
+        val errors: String = util.Arrays.deepToString(response.getErrors.toArray())
+        log.info(s"kairosdb pushMetrics result is: ${response.getStatusCode} errors: $errors")
       }
     }
     case msg => log.warning(s"Unknown msg: $msg")
