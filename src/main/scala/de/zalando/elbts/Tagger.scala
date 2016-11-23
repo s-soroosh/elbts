@@ -44,12 +44,12 @@ object Tagger {
 }
 
 
-case class URLConfig(url: String, groupNames: Seq[String]) {
-  private val regex = url.r(groupNames: _*)
+case class URLConfig(regexUrl: String, groupNames: Seq[String]) {
+  private val regex = regexUrl.r(groupNames: _*)
 
   def tagIfMatch(url: String): Option[Map[String, String]] = {
     regex.findFirstMatchIn(url).map(m => {
-      (("url" -> url) +: groupNames.map(gName => gName -> m.group(gName))).toMap
+      (("url" -> regexUrl) +: groupNames.map(gName => gName -> m.group(gName))).toMap
     })
   }
 }

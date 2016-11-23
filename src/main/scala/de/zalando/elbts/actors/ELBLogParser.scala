@@ -13,7 +13,6 @@ class ELBLogParser(implicit injector: Injector) extends Actor with LoadBalancerL
 
   val target = injectActorRef[MetricsBuilder]("log-parser")
 
-
   override def receive: Receive = {
     case logString: String => {
       val item = LogItem.fromELBString(logString)

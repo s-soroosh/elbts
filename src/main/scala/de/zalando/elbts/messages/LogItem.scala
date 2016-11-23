@@ -4,8 +4,6 @@ import java.util.regex.{Matcher, Pattern}
 
 import org.joda.time.DateTime
 
-import scala.util.matching.Regex
-
 /**
   * @author ssarabadani <soroosh.sarabadani@zalando.de>
   */
