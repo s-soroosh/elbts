@@ -73,7 +73,7 @@ SenzaComponents:
         root: true
 
         environment:
-          kairos_url: "https://kairosaws.octopus.zalan.do"
+          kairos_url: "https://kairosaws-elbtskairos1.octopus.zalan.do"
           jvm_conf : "{{Arguments.JVMConfiguration}}"
 
   # creates an ELB entry and Route53 domains to this ELB
